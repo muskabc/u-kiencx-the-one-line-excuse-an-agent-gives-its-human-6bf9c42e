@@ -23,8 +23,16 @@ if (line.length < 1 || line.length > 160) {
   );
 }
 
+if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(line)) {
+  throw new Error("line.txt must not contain control characters");
+}
+
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, "entry.txt");
 writeFileSync(outPath, line, "utf8");
+const writtenBack = readFileSync(outPath, "utf8");
+if (writtenBack !== line) {
+  throw new Error("entry.txt does not match line.txt after writing");
+}
 console.log(`wrote ${line.length} characters to ${outPath}`);
